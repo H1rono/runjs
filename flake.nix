@@ -12,6 +12,28 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, rust-overlay, crane, ... }:
+    let
+      # key: https://github.com/numtide/flake-utils?tab=readme-ov-file#defaultsystems--system
+      # value: https://github.com/denoland/rusty_v8/releases/tag/v0.83.1
+      rusty-v8-archive = {
+        x86_64-linux = {
+          url = "https://github.com/denoland/rusty_v8/releases/download/v0.83.1/librusty_v8_release_x86_64-unknown-linux-gnu.a";
+          hash = "sha256-0cCpFMPpFWTvoU3+HThYDDTQO7DdpdVDDer5k+3HQFY=";
+        };
+        aarch64-linux = {
+          url = "https://github.com/denoland/rusty_v8/releases/download/v0.83.1/librusty_v8_release_aarch64-unknown-linux-gnu.a";
+          hash = "sha256-fOyJiD0raHxl+5tDWSpH/MbdBUqNY+HCKmTulYLXEYI=";
+        };
+        x86_64-darwin = {
+          url = "https://github.com/denoland/rusty_v8/releases/download/v0.83.1/librusty_v8_release_x86_64-apple-darwin.a";
+          hash = "sha256-JwZ1FrU/MZeEnvSPDojvDdDxIF/bdZBPRCXrjbBb7WM=";
+        };
+        aarch64-darwin = {
+          url = "https://github.com/denoland/rusty_v8/releases/download/v0.83.1/librusty_v8_release_aarch64-apple-darwin.a";
+          hash = "sha256-ajmr+SGj3L8TT+17NPkNcwQFESpIZuUul12Pp1oJAkY=";
+        };
+      };
+    in
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -22,21 +44,32 @@
 
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
         craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
+
+        jsFileFilter = path: _type: builtins.match ".*(ts|js)$" path != null;
+        src = lib.cleanSourceWith {
+          src = craneLib.path ./.;
+          filter = path: type: (jsFileFilter path type) || (craneLib.filterCargoSources path type);
+        };
+
+        v8Archive = pkgs.fetchurl rusty-v8-archive.${system};
 
         commonArgs = {
+          stdenv = pkgs.clangStdenv;
           inherit src;
           strictDeps = true;
           # Common arguments can be set here to avoid repeating them later
-          buildInputs = [
+          nativeBuildInputs = with pkgs; [
+            pkg-config
+          ];
+          buildInputs = with pkgs; [
             # Add additional build inputs here
-          ] ++ lib.optionals pkgs.stdenv.isDarwin [
+          ] ++ lib.optionals stdenv.isDarwin [
             # Additional darwin specific inputs can be set here
-            pkgs.libiconv
+            libiconv
           ];
 
           # Additional environment variables can be set directly
-          # MY_CUSTOM_VAR = "some value";
+          RUSTY_V8_ARCHIVE = "${v8Archive}";
         };
 
         # Build *just* the cargo dependencies, so we can reuse
@@ -71,7 +104,8 @@
           # Check formatting
           fmt = craneLib.cargoFmt commonArgs;
         };
-        packages.default = build;
+        packages.default = craneLib.buildPackage commonArgs;
+        pakcages.withoutDeps = craneLib.buildPackage commonArgs;
 
         apps.default = flake-utils.lib.mkApp {
           drv = build;
