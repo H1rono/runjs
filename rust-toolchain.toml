@@ -1,0 +1,8 @@
+# https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+[toolchain]
+# Edit here to specify the rust version
+channel = "stable"
+# IDE-ready component set
+profile = "default"
+components = ["rust-analyzer", "rust-src"]
+targets = []
