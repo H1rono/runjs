@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.79"
+# crate by the Deno team that abstracts away interactions with the V8 JavaScript engine
+deno_core = "0.246.0"
+# asynchronous Rust runtime
+tokio = { version = "1.35.1", features = ["full"] }
