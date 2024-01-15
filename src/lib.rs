@@ -1,9 +1,17 @@
+pub mod ops;
+
+deno_core::extension!(
+    runjs_extension,
+    ops = [ops::op_read_file, ops::op_write_file, ops::op_remove_file]
+);
+
 pub async fn run_js(file_path: &str) -> anyhow::Result<()> {
     let current_dir = std::env::current_dir()?;
     let main_module = deno_core::resolve_path(file_path, &current_dir)?;
 
     let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
         module_loader: Some(std::rc::Rc::new(deno_core::FsModuleLoader)),
+        extensions: vec![runjs_extension::ext()],
         ..Default::default()
     });
     let runtimejs_src = deno_core::FastString::Static(include_str!("runtime.js"));
