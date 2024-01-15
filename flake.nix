@@ -1,5 +1,5 @@
 {
-  description = "My template repository of rust project";
+  description = "Roll my own javascript runtime";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/release-23.11";

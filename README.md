@@ -1,4 +1,4 @@
-# my-rust-template
+# runjs
 
 My template repository of rust project
 
