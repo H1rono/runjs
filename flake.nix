@@ -63,9 +63,12 @@
           ];
           buildInputs = with pkgs; [
             # Add additional build inputs here
+            openssl
           ] ++ lib.optionals stdenv.isDarwin [
             # Additional darwin specific inputs can be set here
             libiconv
+            darwin.Security
+            darwin.apple_sdk.frameworks.SystemConfiguration
           ];
 
           # Additional environment variables can be set directly
