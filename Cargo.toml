@@ -9,5 +9,6 @@ edition = "2021"
 anyhow = "1.0.79"
 # crate by the Deno team that abstracts away interactions with the V8 JavaScript engine
 deno_core = "0.246.0"
+reqwest = "0.11.23"
 # asynchronous Rust runtime
 tokio = { version = "1.35.1", features = ["full"] }
