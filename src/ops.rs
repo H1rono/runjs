@@ -26,3 +26,10 @@ pub async fn op_remove_file(#[string] path: String) -> anyhow::Result<()> {
     fs::remove_file(path).await?;
     Ok(())
 }
+
+#[op2(async)]
+#[string]
+pub async fn op_fetch(#[string] url: String) -> anyhow::Result<String> {
+    let body = reqwest::get(url).await?.text().await?;
+    Ok(body)
+}

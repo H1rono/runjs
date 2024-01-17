@@ -2,7 +2,12 @@ pub mod ops;
 
 deno_core::extension!(
     runjs_extension,
-    ops = [ops::op_read_file, ops::op_write_file, ops::op_remove_file]
+    ops = [
+        ops::op_read_file,
+        ops::op_write_file,
+        ops::op_remove_file,
+        ops::op_fetch
+    ]
 );
 
 pub async fn run_js(file_path: &str) -> anyhow::Result<()> {
