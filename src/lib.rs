@@ -1,4 +1,5 @@
 pub mod ops;
+pub mod ts_loader;
 
 deno_core::extension!(
     runjs_extension,
@@ -15,7 +16,7 @@ pub async fn run_js(file_path: &str) -> anyhow::Result<()> {
     let main_module = deno_core::resolve_path(file_path, &current_dir)?;
 
     let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
-        module_loader: Some(std::rc::Rc::new(deno_core::FsModuleLoader)),
+        module_loader: Some(std::rc::Rc::new(ts_loader::TsModuleLoader)),
         extensions: vec![runjs_extension::ext()],
         ..Default::default()
     });
